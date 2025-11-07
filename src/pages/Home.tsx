@@ -57,21 +57,6 @@ export default function Home() {
               Riwayat Transaksi
             </Link>
           </div>
-
-          <dl className="grid gap-6 pt-6 sm:grid-cols-3">
-            {[
-              { label: "Koleksi Buku", value: "3.2K+" },
-              { label: "Penulis Aktif", value: "210+" },
-              { label: "Transaksi / bln", value: "1.4K" },
-            ].map((item) => (
-              <div key={item.label} className="rounded-2xl border border-white/60 bg-white/80 p-4 text-center shadow-sm">
-                <dt className="text-3xl font-bold text-indigo-600">{item.value}</dt>
-                <dd className="text-sm font-semibold uppercase tracking-wide text-slate-500">
-                  {item.label}
-                </dd>
-              </div>
-            ))}
-          </dl>
         </div>
 
       </section>
