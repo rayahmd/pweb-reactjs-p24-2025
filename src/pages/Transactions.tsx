@@ -58,38 +58,42 @@ export default function Transactions() {
 
   return (
     <section className="space-y-6">
-      <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-sm font-semibold uppercase tracking-wider text-indigo-500">
-            Transaksi Anda
-          </p>
-          <h1 className="text-3xl font-bold text-slate-900">Riwayat Transaksi</h1>
-          <p className="text-sm text-slate-500">
-            Pantau pembelian dan peminjaman buku Anda, lengkap dengan pencarian dan filter.
-          </p>
+      {/* HERO HEADER — mirip homepage */}
+      <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
+        <h1 className="text-3xl font-bold text-slate-900">Riwayat Transaksi</h1>
+        <p className="text-sm text-slate-600 mt-2">
+          Pantau semua pembelian buku IT Anda dalam satu tempat terintegrasi.
+        </p>
+        <div className="flex gap-3 mt-4">
+          <Link
+            to="/books"
+            className="inline-flex items-center rounded-xl bg-indigo-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700"
+          >
+            Lihat Semua Buku
+          </Link>
+          <Link
+            to="/checkout"
+            className="inline-flex items-center rounded-xl border border-indigo-600 px-5 py-2 text-sm font-semibold text-indigo-600 transition hover:bg-indigo-50"
+          >
+            Buat Transaksi Baru
+          </Link>
         </div>
+      </div>
 
-        <Link
-          to="/checkout"
-          className="inline-flex items-center rounded-2xl bg-indigo-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700"
-        >
-          + Transaksi Baru
-        </Link>
-      </header>
-
-      <div className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow sm:grid-cols-2 lg:grid-cols-4">
-        <label className="flex flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-slate-500 sm:col-span-2">
+      {/* FILTER CARD — mirip homepage card */}
+      <div className="grid gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-4">
+        <label className="flex flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-indigo-500 sm:col-span-2">
           Cari berdasarkan ID transaksi
           <input
             type="search"
-            placeholder="Misal: 1023"
+            placeholder="Misal: TRX-1023"
             value={filters.search}
             onChange={(event) => updateFilters({ search: event.target.value })}
             className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-900 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
           />
         </label>
 
-        <label className="flex flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
+        <label className="flex flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-indigo-500">
           Urutkan menurut
           <select
             value={filters.sortBy}
@@ -104,7 +108,7 @@ export default function Transactions() {
           </select>
         </label>
 
-        <label className="flex flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
+        <label className="flex flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-indigo-500">
           Urutan data
           <select
             value={filters.sortOrder}
@@ -117,6 +121,7 @@ export default function Transactions() {
         </label>
       </div>
 
+      {/* LIST TRANSAKSI */}
       {loading ? (
         <LoadingState title="Memuat transaksi" description="Menyiapkan data riwayat..." />
       ) : error ? (
@@ -136,7 +141,7 @@ export default function Transactions() {
           action={
             <Link
               to="/checkout"
-              className="inline-flex items-center rounded-2xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white"
+              className="inline-flex items-center rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white"
             >
               Buat Transaksi
             </Link>
@@ -144,10 +149,10 @@ export default function Transactions() {
         />
       ) : (
         <>
-          <div className="overflow-hidden rounded-3xl border border-slate-200 shadow">
+          <div className="overflow-hidden rounded-xl border border-slate-200 shadow">
             <table className="min-w-full divide-y divide-slate-200">
               <thead className="bg-slate-50">
-                <tr className="text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <tr className="text-left text-xs font-semibold uppercase tracking-wider text-indigo-500">
                   <th className="px-6 py-3">ID</th>
                   <th className="px-6 py-3">Tanggal</th>
                   <th className="px-6 py-3">Jumlah Item</th>
@@ -192,13 +197,13 @@ export default function Transactions() {
             </table>
           </div>
 
-          {meta ? (
+          {meta && (
             <Pagination
               page={meta.page}
               totalPage={meta.totalPage}
               onChange={(page) => updateFilters({ page })}
             />
-          ) : null}
+          )}
         </>
       )}
     </section>

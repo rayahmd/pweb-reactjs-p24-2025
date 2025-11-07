@@ -10,6 +10,7 @@ import type { Book } from "../types/book";
 import { formatCurrency } from "../utils/format";
 
 interface CheckoutItem {
+  id: string; // ✅ tambahkan id unik
   bookId: string;
   quantity: number;
 }
@@ -23,7 +24,11 @@ export default function Checkout() {
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [items, setItems] = useState<CheckoutItem[]>([
-    { bookId: searchParams.get("bookId") || "", quantity: 1 },
+    { 
+      id: "init", 
+      bookId: searchParams.get("bookId") || "", 
+      quantity: 1 
+    },
   ]);
 
   useEffect(() => {
@@ -44,37 +49,51 @@ export default function Checkout() {
   }, []);
 
   const addItem = () => {
-    setItems((prev) => [...prev, { bookId: "", quantity: 1 }]);
+    setItems((prev) => [
+      ...prev,
+      { id: Date.now().toString(), bookId: "", quantity: 1 } // ✅ id unik
+    ]);
   };
 
   const updateItem = (index: number, changes: Partial<CheckoutItem>) => {
-    setItems((prev) => prev.map((item, idx) => (idx === index ? { ...item, ...changes } : item)));
+    setItems((prev) => 
+      prev.map((item, idx) => idx === index ? { ...item, ...changes } : item)
+    );
   };
 
   const removeItem = (index: number) => {
     setItems((prev) => prev.filter((_, idx) => idx !== index));
   };
 
+  // ✅ Tambahkan validasi stok
   const summary = useMemo(() => {
     const enriched = items
       .map((item) => {
         const book = books.find((b) => String(b.id) === item.bookId);
-        return { ...item, book };
+        const isInStock = book ? item.quantity <= book.stock : true;
+        return { ...item, book, isInStock };
       })
       .filter((item) => item.book && item.quantity > 0);
 
     const totalAmount = enriched.reduce((acc, item) => acc + item.quantity, 0);
     const totalPrice = enriched.reduce(
       (acc, item) => acc + item.quantity * (item.book?.price ?? 0),
-      0,
+      0
     );
+    const hasStockError = enriched.some(item => !item.isInStock);
 
-    return { enriched, totalAmount, totalPrice };
+    return { enriched, totalAmount, totalPrice, hasStockError };
   }, [items, books]);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     setFormError(null);
+
+    // ✅ Validasi stok
+    if (summary.hasStockError) {
+      setFormError("Beberapa buku melebihi stok yang tersedia.");
+      return;
+    }
 
     const payloadItems = items
       .filter((item) => item.bookId && item.quantity > 0)
@@ -128,94 +147,139 @@ export default function Checkout() {
 
   return (
     <section className="space-y-6">
-      <header>
-        <p className="text-sm font-semibold uppercase tracking-wider text-indigo-500">Checkout</p>
+      {/* HERO HEADER — konsisten */}
+      <div className="bg-white rounded-xl shadow-lg p-6">
         <h1 className="text-3xl font-bold text-slate-900">Buat Transaksi Baru</h1>
-        <p className="text-sm text-slate-500">
-          Pilih satu atau lebih buku dan tentukan jumlah yang ingin Anda beli atau pinjam.
+        <p className="text-sm text-slate-600 mt-2">
+          Pilih satu atau lebih buku dan tentukan jumlah yang ingin Anda beli.
         </p>
-      </header>
+      </div>
 
+      {/* FORM & RINGKASAN */}
       <form
         onSubmit={handleSubmit}
-        className="grid gap-6 rounded-3xl border border-slate-200 bg-white p-6 shadow lg:grid-cols-[3fr,2fr]"
+        className="grid gap-6 lg:grid-cols-[3fr,2fr]"
       >
-        <div className="space-y-4">
-          {items.map((item, index) => (
-            <div key={index} className="rounded-2xl border border-slate-100 p-4">
-              <div className="flex items-start justify-between">
-                <p className="text-sm font-semibold text-slate-500">Item #{index + 1}</p>
-                {items.length > 1 ? (
-                  <button
-                    type="button"
-                    onClick={() => removeItem(index)}
-                    className="text-xs font-semibold text-rose-500 hover:text-rose-600"
-                  >
-                    Hapus
-                  </button>
-                ) : null}
-              </div>
-              <div className="mt-3 grid gap-3 md:grid-cols-2">
-                <SelectField
-                  label="Buku"
-                  value={item.bookId}
-                  onChange={(event) => updateItem(index, { bookId: event.target.value })}
-                  options={[
-                    { label: "Pilih buku", value: "" },
-                    ...books.map((book) => ({
-                      label: `${book.title} — ${formatCurrency(book.price)}`,
-                      value: String(book.id),
-                    })),
-                  ]}
-                  required
-                />
-                <InputField
-                  label="Jumlah"
-                  type="number"
-                  min={1}
-                  value={item.quantity}
-                  onChange={(event) => updateItem(index, { quantity: Number(event.target.value) })}
-                  required
-                />
-              </div>
-            </div>
-          ))}
+        {/* FORM INPUT — CARD */}
+        <div className="bg-white rounded-xl shadow-md border border-slate-200 p-5">
+          <h2 className="text-lg font-semibold text-slate-900 mb-4">Pilih Buku</h2>
+          
+          <div className="space-y-4">
+            {items.map((item, index) => {
+              const book = books.find(b => String(b.id) === item.bookId);
+              return (
+                <div key={item.id} className="rounded-lg border border-slate-200 p-4 bg-slate-50">
+                  <div className="flex items-start justify-between mb-3">
+                    <p className="text-sm font-semibold text-indigo-600">Item #{index + 1}</p>
+                    {items.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeItem(index)}
+                        className="text-xs font-semibold text-rose-500 hover:text-rose-600"
+                      >
+                        Hapus
+                      </button>
+                    )}
+                  </div>
 
-          <Button type="button" variant="ghost" onClick={addItem} className="border border-dashed border-slate-300 text-slate-700">
-            + Tambah Item
-          </Button>
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <SelectField
+                      label="Buku"
+                      value={item.bookId}
+                      onChange={(e) => updateItem(index, { bookId: e.target.value })}
+                      options={[
+                        { label: "Pilih buku", value: "" },
+                        ...books.map((book) => ({
+                          label: `${book.title} — ${formatCurrency(book.price)}`,
+                          value: String(book.id),
+                          disabled: items.some(i => i.bookId === String(book.id) && i.id !== item.id),
+                        })),
+                      ]}
+                      className="rounded-xl border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+                      required
+                    />
+
+                    <InputField
+                      label="Jumlah"
+                      type="number"
+                      min={1}
+                      max={book?.stock || 100}
+                      value={item.quantity}
+                      onChange={(e) => updateItem(index, { quantity: Number(e.target.value) })}
+                      className="rounded-xl border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+                      required
+                    />
+                  </div>
+
+                  {/* ✅ UI warning stok */}
+                  {book && item.quantity > book.stock && (
+                    <p className="mt-2 text-xs text-rose-500 flex items-center gap-1">
+                      ⚠️ Stok hanya <span className="font-mono">{book.stock}</span>
+                    </p>
+                  )}
+                  {book && item.quantity <= book.stock && book.stock > 0 && (
+                    <p className="mt-2 text-xs text-emerald-600">
+                      Tersedia: <span className="font-mono">{book.stock}</span> buku
+                    </p>
+                  )}
+                </div>
+              );
+            })}
+
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={addItem}
+              className="w-full border-dashed border-slate-300 text-slate-700"
+            >
+              + Tambah Item
+            </Button>
+          </div>
         </div>
 
-        <aside className="space-y-4 rounded-2xl border border-slate-100 bg-slate-50 p-5">
-          <h2 className="text-lg font-semibold text-slate-900">Ringkasan</h2>
+        {/* RINGKASAN — CARD */}
+        <div className="bg-white rounded-xl shadow-md border border-slate-200 p-5">
+          <h2 className="text-lg font-semibold text-slate-900 mb-4">Ringkasan Pembelian</h2>
+          
           <dl className="space-y-2 text-sm text-slate-600">
             <div className="flex items-center justify-between">
               <dt>Total item</dt>
               <dd className="font-semibold text-slate-900">{summary.totalAmount} buku</dd>
             </div>
             <div className="flex items-center justify-between">
-              <dt>Estimasi harga</dt>
+              <dt>Total harga</dt>
               <dd className="text-xl font-bold text-indigo-600">
                 {formatCurrency(summary.totalPrice)}
               </dd>
             </div>
           </dl>
 
-          {formError ? <p className="text-sm font-semibold text-rose-500">{formError}</p> : null}
+          {/* ERROR MESSAGE */}
+          {formError && (
+            <p className="mt-4 text-sm text-rose-500 font-medium">{formError}</p>
+          )}
 
-          <Button type="submit" loading={submitting} disabled={summary.totalAmount === 0}>
-            Proses Transaksi
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => navigate(-1)}
-            disabled={submitting}
-            className="border border-slate-200 text-slate-700"
-          >
-            Batalkan
-          </Button>
-        </aside>
+          {/* TOMBOL */}
+          <div className="mt-6 space-y-3">
+            <Button 
+              type="submit" 
+              loading={submitting}
+              disabled={summary.totalAmount === 0 || summary.hasStockError}
+              className="w-full"
+            >
+              Proses Transaksi
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => navigate(-1)}
+              disabled={submitting}
+              className="w-full"
+            >
+              Batalkan
+            </Button>
+          </div>
+        </div>
       </form>
     </section>
   );
