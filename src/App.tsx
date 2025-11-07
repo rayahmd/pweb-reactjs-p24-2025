@@ -1,16 +1,20 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Home from "./pages/Home.tsx";
+import BookDetail from "./pages/BookDetail.tsx";
+import Login from "./pages/Login.tsx";
+import Register from "./pages/Register.tsx";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-			<p className="text-white text-5xl font-bold text-center py-96">hay</p>
-    </>
-  )
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/book/:id" element={<BookDetail />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
