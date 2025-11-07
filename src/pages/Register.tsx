@@ -1,56 +1,82 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import Button from "../components/Button";
+import InputField from "../components/form/InputField";
+import { useAuth } from "../context/AuthContext";
 
 export default function Register() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+  const { register } = useAuth();
+  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    alert(`Register berhasil!\nNama: ${name}\nEmail: ${email}`);
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!form.name || !form.email || !form.password) {
+      setError("Semua field wajib diisi.");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    try {
+      await register(form);
+      navigate("/books");
+    } catch (err) {
+      setError("Registrasi gagal. Pastikan email belum terdaftar.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="flex justify-center items-center h-screen">
+    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-6 rounded shadow-md w-80"
+        className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-lg"
       >
-        <h1 className="text-2xl font-bold mb-4">Register</h1>
+        <p className="text-sm font-semibold uppercase tracking-wider text-emerald-500">
+          Bergabung sekarang
+        </p>
+        <h1 className="text-3xl font-bold text-slate-900">Daftar akun baru</h1>
+        <p className="text-sm text-slate-500">Bangun katalog dan transaksi buku Anda.</p>
 
-        <input
-          type="text"
-          placeholder="Nama Lengkap"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="border p-2 w-full mb-3 rounded"
-          required
-        />
+        <div className="mt-6 space-y-4">
+          <InputField
+            label="Nama Lengkap"
+            value={form.name}
+            onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
+            required
+          />
+          <InputField
+            label="Email"
+            type="email"
+            value={form.email}
+            onChange={(event) => setForm((prev) => ({ ...prev, email: event.target.value }))}
+            required
+          />
+          <InputField
+            label="Password"
+            type="password"
+            value={form.password}
+            onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))}
+            required
+          />
+        </div>
 
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="border p-2 w-full mb-3 rounded"
-          required
-        />
+        {error ? <p className="mt-3 text-sm font-semibold text-rose-500">{error}</p> : null}
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="border p-2 w-full mb-3 rounded"
-          required
-        />
-
-        <button
-          type="submit"
-          className="bg-green-500 text-white w-full py-2 rounded"
-        >
+        <Button type="submit" loading={loading} className="mt-6 w-full">
           Daftar
-        </button>
+        </Button>
+
+        <p className="mt-4 text-center text-sm text-slate-500">
+          Sudah punya akun?{" "}
+          <Link to="/login" className="font-semibold text-indigo-600 hover:text-indigo-800">
+            Masuk
+          </Link>
+        </p>
       </form>
     </div>
   );
