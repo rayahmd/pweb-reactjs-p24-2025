@@ -7,6 +7,10 @@ interface Props {
 }
 
 export default function BookCard({ book }: Props) {
+  const genreName = typeof book.genre === 'string' ? book.genre : book.genre?.name || 'Unknown';
+  const stockDisplay = book.stock_quantity ?? book.stock ?? 0;
+  const writer = book.writer || (book as any).author || 'Unknown Author';
+  
   return (
     <Link
       to={`/books/${book.id}`}
@@ -22,20 +26,20 @@ export default function BookCard({ book }: Props) {
           className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
         />
         <span className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-indigo-600 shadow">
-          {book.genre?.name}
+          {genreName}
         </span>
       </div>
 
       <div className="flex flex-1 flex-col gap-2 p-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-            {book.writer}
+            {writer}
           </p>
           <h3 className="text-lg font-semibold text-slate-900">{book.title}</h3>
         </div>
         <div className="mt-auto flex items-center justify-between text-sm text-slate-500">
-          <span>{book.condition}</span>
-          <span>Stok: {book.stock}</span>
+          <span>{book.condition || 'GOOD'}</span>
+          <span>Stok: {stockDisplay}</span>
         </div>
         <p className="text-lg font-bold text-indigo-600">
           {formatCurrency(book.price)}

@@ -23,7 +23,7 @@ export default function Login() {
     setError(null);
     try {
       await login(form);
-      const redirectPath = (location.state as { from?: Location })?.from?.pathname || "/books";
+      const redirectPath = (location.state as { from?: Location })?.from?.pathname || "/home";
       navigate(redirectPath, { replace: true });
     } catch (err) {
       setError("Login gagal. Periksa kredensial Anda.");

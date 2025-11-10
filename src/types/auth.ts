@@ -1,7 +1,9 @@
 export interface User {
-  id: number;
-  name: string;
+  id: string;
+  username: string;
   email: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface LoginPayload {
@@ -10,12 +12,19 @@ export interface LoginPayload {
 }
 
 export interface RegisterPayload {
-  name: string;
+  username: string;
   email: string;
   password: string;
 }
 
 export interface AuthResponse {
-  token: string;
-  user: User;
+  success: boolean;
+  data: {
+    token: string;
+  };
+}
+
+export interface UserResponse {
+  success: boolean;
+  data: User;
 }

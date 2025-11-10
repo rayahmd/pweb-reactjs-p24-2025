@@ -37,7 +37,7 @@ export default function Transactions() {
           search: filters.search || undefined,
         });
         setTransactions(response.data);
-        setMeta(response.meta);
+        setMeta(response.meta || null);
       } catch (err) {
         setError("Gagal memuat transaksi. Pastikan Anda sudah login.");
       } finally {
@@ -162,37 +162,50 @@ export default function Transactions() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 bg-white text-sm text-slate-700">
-                {transactions.map((transaction) => (
-                  <tr key={transaction.id} className="hover:bg-slate-50/60">
-                    <td className="px-6 py-4 font-semibold text-slate-900">#{transaction.id}</td>
-                    <td className="px-6 py-4">{formatDate(transaction.createdAt)}</td>
-                    <td className="px-6 py-4">{transaction.totalAmount} buku</td>
-                    <td className="px-6 py-4 font-semibold text-slate-900">
-                      {formatCurrency(transaction.totalPrice)}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                          transaction.status === "PAID"
-                            ? "bg-emerald-50 text-emerald-700"
-                            : transaction.status === "PENDING"
-                              ? "bg-amber-50 text-amber-700"
-                              : "bg-rose-50 text-rose-700"
-                        }`}
-                      >
-                        {transaction.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <Link
-                        to={`/transactions/${transaction.id}`}
-                        className="text-sm font-semibold text-indigo-600 hover:text-indigo-800"
-                      >
-                        Detail
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
+                {transactions.map((transaction) => {
+                  // Hitung ulang total dari items
+                  const calculatedTotal = transaction.items?.reduce((sum, item) => {
+                    const price = Number(item.price) || 0;
+                    const quantity = Number(item.quantity) || 0;
+                    return sum + (price * quantity);
+                  }, 0) || 0;
+
+                  const totalItems = transaction.items?.reduce((sum, item) => {
+                    return sum + (Number(item.quantity) || 0);
+                  }, 0) || 0;
+
+                  return (
+                    <tr key={transaction.id} className="hover:bg-slate-50/60">
+                      <td className="px-6 py-4 font-semibold text-slate-900">#{transaction.id}</td>
+                      <td className="px-6 py-4">{formatDate(transaction.createdAt)}</td>
+                      <td className="px-6 py-4">{totalItems} buku</td>
+                      <td className="px-6 py-4 font-semibold text-slate-900">
+                        {formatCurrency(calculatedTotal)}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span
+                          className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                            transaction.status === "PAID"
+                              ? "bg-emerald-50 text-emerald-700"
+                              : transaction.status === "PENDING"
+                                ? "bg-amber-50 text-amber-700"
+                                : "bg-rose-50 text-rose-700"
+                          }`}
+                        >
+                          {transaction.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <Link
+                          to={`/transactions/${transaction.id}`}
+                          className="text-sm font-semibold text-indigo-600 hover:text-indigo-800"
+                        >
+                          Detail
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

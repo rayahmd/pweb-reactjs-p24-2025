@@ -66,6 +66,17 @@ export default function TransactionDetail() {
     );
   }
 
+  // Hitung ulang total dari items untuk memastikan akurat
+  const calculatedTotal = transaction.items.reduce((sum, item) => {
+    const price = Number(item.price) || 0;
+    const quantity = Number(item.quantity) || 0;
+    return sum + (price * quantity);
+  }, 0);
+
+  const totalAmount = transaction.items.reduce((sum, item) => {
+    return sum + (Number(item.quantity) || 0);
+  }, 0);
+
   return (
     <section className="space-y-6">
       {/* HERO HEADER — konsisten dengan Transactions.tsx */}
@@ -103,24 +114,31 @@ export default function TransactionDetail() {
             <h2 className="text-lg font-semibold text-slate-900">Item Pembelian</h2>
           </div>
           <div className="divide-y divide-slate-100">
-            {transaction.items.map((item) => (
-              <div key={`${item.bookId}-${item.quantity}`} className="flex items-center justify-between px-6 py-4">
-                <div>
-                  <p className="text-sm font-semibold text-slate-900">
-                    {item.book?.title || `Buku #${item.bookId}`}
-                  </p>
-                  <p className="text-xs text-slate-500">
-                    {item.book?.writer ? `oleh ${item.book.writer}` : "Penulis tidak tersedia"}
-                  </p>
-                  <p className="text-xs text-slate-500 mt-1">
-                    <span className="font-medium">Qty:</span> {item.quantity}
+            {transaction.items.map((item) => {
+              const writer = item.book?.writer || (item.book as any)?.author || 'Penulis tidak tersedia';
+              const itemPrice = Number(item.price) || 0;
+              const itemQuantity = Number(item.quantity) || 0;
+              const subtotal = itemPrice * itemQuantity;
+              
+              return (
+                <div key={`${item.bookId}-${item.quantity}`} className="flex items-center justify-between px-6 py-4">
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-slate-900">
+                      {item.book?.title || `Buku #${item.bookId}`}
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      {writer}
+                    </p>
+                    <p className="text-xs text-slate-500 mt-1">
+                      <span className="font-medium">Qty:</span> {item.quantity}
+                    </p>
+                  </div>
+                  <p className="text-sm font-semibold text-slate-900 ml-4">
+                    {formatCurrency(subtotal)}
                   </p>
                 </div>
-                <p className="text-sm font-semibold text-slate-900">
-                  {formatCurrency(item.price)}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -130,12 +148,12 @@ export default function TransactionDetail() {
           <dl className="space-y-3 text-sm text-slate-600">
             <div className="flex items-center justify-between">
               <dt>Total item</dt>
-              <dd className="font-semibold text-slate-900">{transaction.totalAmount} buku</dd>
+              <dd className="font-semibold text-slate-900">{totalAmount} buku</dd>
             </div>
             <div className="flex items-center justify-between">
               <dt>Total harga</dt>
               <dd className="text-xl font-bold text-indigo-600">
-                {formatCurrency(transaction.totalPrice)}
+                {formatCurrency(calculatedTotal)}
               </dd>
             </div>
           </dl>

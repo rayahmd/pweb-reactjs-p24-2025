@@ -7,13 +7,13 @@ import { useAuth } from "../context/AuthContext";
 export default function Register() {
   const navigate = useNavigate();
   const { register } = useAuth();
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [form, setForm] = useState({ username: "", email: "", password: "" });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    if (!form.name || !form.email || !form.password) {
+    if (!form.username || !form.email || !form.password) {
       setError("Semua field wajib diisi.");
       return;
     }
@@ -22,9 +22,9 @@ export default function Register() {
     setError(null);
     try {
       await register(form);
-      navigate("/books");
-    } catch (err) {
-      setError("Registrasi gagal. Pastikan email belum terdaftar.");
+      navigate("/login");
+    } catch (err: any) {
+      setError(err?.response?.data?.message || "Registrasi gagal. Pastikan email belum terdaftar.");
     } finally {
       setLoading(false);
     }
@@ -44,9 +44,9 @@ export default function Register() {
 
         <div className="mt-6 space-y-4">
           <InputField
-            label="Nama Lengkap"
-            value={form.name}
-            onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
+            label="Username"
+            value={form.username}
+            onChange={(event) => setForm((prev) => ({ ...prev, username: event.target.value }))}
             required
           />
           <InputField

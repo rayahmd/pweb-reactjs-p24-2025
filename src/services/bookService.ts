@@ -3,6 +3,7 @@ import type {
   Book,
   BookFilters,
   BookListResponse,
+  BookDetailResponse,
   CreateBookPayload,
   Genre,
 } from "../types/book";
@@ -16,21 +17,26 @@ export const getBooks = async (
   return data;
 };
 
-export const getBookById = async (id: string | number): Promise<Book> => {
-  const { data } = await API.get<Book>(`/books/${id}`);
+export const getBookById = async (id: string): Promise<Book> => {
+  const { data } = await API.get<BookDetailResponse>(`/books/${id}`);
+  return data.data;
+};
+
+export const createBook = async (payload: CreateBookPayload): Promise<any> => {
+  const { data } = await API.post<any>("/books", payload);
   return data;
 };
 
-export const createBook = async (payload: CreateBookPayload): Promise<Book> => {
-  const { data } = await API.post<Book>("/books", payload);
+export const updateBook = async (id: string, payload: Partial<CreateBookPayload>): Promise<any> => {
+  const { data } = await API.patch<any>(`/books/${id}`, payload);
   return data;
 };
 
-export const deleteBook = async (id: string | number): Promise<void> => {
+export const deleteBook = async (id: string): Promise<void> => {
   await API.delete(`/books/${id}`);
 };
 
 export const getGenres = async (): Promise<Genre[]> => {
-  const { data } = await API.get<Genre[]>("/genres");
-  return data;
+  const { data } = await API.get<{ success: boolean; data: Genre[] }>("/genre");
+  return data.data;
 };

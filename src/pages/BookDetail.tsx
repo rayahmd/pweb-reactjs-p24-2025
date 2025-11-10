@@ -66,24 +66,30 @@ export default function BookDetail() {
     );
   }
 
+  const writer = book.writer || (book as any).author || 'Unknown Author';
+  const coverImage = book.coverUrl || `https://source.unsplash.com/900x900/?book&sig=${book.id}`;
+
   return (
     <section className="grid gap-10 lg:grid-cols-[2fr,1fr]">
       <div className="space-y-6">
         <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow">
           <img
-            src={book.coverUrl || `https://source.unsplash.com/900x900/?book&sig=${book.id}`}
+            src={coverImage}
             alt={book.title}
             className="h-96 w-full object-cover"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = `https://source.unsplash.com/900x900/?book&sig=${book.id}`;
+            }}
           />
         </div>
 
         <div className="space-y-4 rounded-3xl border border-slate-200 bg-white p-6 shadow">
           <div>
             <p className="text-sm font-semibold uppercase tracking-wide text-indigo-500">
-              {book.genre?.name || "Tanpa Genre"}
+              {typeof book.genre === 'string' ? book.genre : book.genre?.name || "Tanpa Genre"}
             </p>
             <h1 className="text-4xl font-bold text-slate-900">{book.title}</h1>
-            <p className="text-lg text-slate-500">oleh {book.writer}</p>
+            <p className="text-lg text-slate-500">oleh {writer}</p>
           </div>
 
           <p className="text-slate-700">{book.description || "Belum ada deskripsi untuk buku ini."}</p>
@@ -95,7 +101,7 @@ export default function BookDetail() {
             </div>
             <div>
               <dt className="font-semibold text-slate-800">Tahun Terbit</dt>
-              <dd>{book.publicationYear ?? "-"}</dd>
+              <dd>{book.publicationYear ?? book.publication_year ?? "-"}</dd>
             </div>
             <div>
               <dt className="font-semibold text-slate-800">ISBN</dt>
@@ -103,7 +109,7 @@ export default function BookDetail() {
             </div>
             <div>
               <dt className="font-semibold text-slate-800">Kondisi</dt>
-              <dd>{book.condition || "-"}</dd>
+              <dd>{book.condition || "GOOD"}</dd>
             </div>
           </dl>
         </div>
@@ -113,7 +119,7 @@ export default function BookDetail() {
         <p className="text-sm font-semibold uppercase tracking-wide text-slate-400">Harga</p>
         <p className="text-4xl font-bold text-indigo-600">{formatCurrency(book.price)}</p>
         <p className="text-sm text-slate-500">
-          Stok tersedia: <span className="font-semibold text-slate-800">{book.stock}</span> buku
+          Stok tersedia: <span className="font-semibold text-slate-800">{book.stock_quantity ?? book.stock}</span> buku
         </p>
         <p className="text-sm text-slate-500">Terakhir diperbarui {formatDate(book.updatedAt)}</p>
 
@@ -125,12 +131,20 @@ export default function BookDetail() {
             Beli / Pinjam Buku
           </Link>
           {token ? (
-            <Link
-              to="/transactions"
-              className="block rounded-2xl border border-slate-200 px-4 py-3 text-center font-semibold text-slate-700 transition hover:border-slate-300"
-            >
-              Lihat Riwayat Transaksi
-            </Link>
+            <>
+              <Link
+                to={`/books/${book.id}/edit`}
+                className="block rounded-2xl bg-emerald-600 px-4 py-3 text-center font-semibold text-white transition hover:bg-emerald-700"
+              >
+                Edit Buku
+              </Link>
+              <Link
+                to="/transactions"
+                className="block rounded-2xl border border-slate-200 px-4 py-3 text-center font-semibold text-slate-700 transition hover:border-slate-300"
+              >
+                Lihat Riwayat Transaksi
+              </Link>
+            </>
           ) : (
             <Link
               to="/login"

@@ -1,53 +1,157 @@
-# React + TypeScript + Vite
+# 📚 IT Literature - Sistem Manajemen Buku Digital
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplikasi web untuk mengelola koleksi buku IT dengan fitur authentication, CRUD buku, manajemen genre, dan sistem transaksi.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ⚠️ PENTING: Cara Menjalankan Aplikasi
 
-## React Compiler
+**Aplikasi ini terdiri dari 2 bagian yang HARUS dijalankan bersamaan:**
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. **Backend** (Express.js + Prisma + PostgreSQL) - Port 8080
+2. **Frontend** (React + Vite + TypeScript) - Port 5173
 
-## Expanding the ESLint configuration
+### 🚀 Quick Start
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+**Terminal 1 - Backend:**
+```bash
+cd pweb-express-p24-2025
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+**Terminal 2 - Frontend:**
+```bash
+cd pweb-reactjs-p24-2025
+pnpm run dev
+```
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
+📖 **Panduan Lengkap:**
+- [CARA_MENJALANKAN.md](./CARA_MENJALANKAN.md) - Tutorial step-by-step dengan diagram
+- [QUICK_START.md](./QUICK_START.md) - Testing & validasi fitur
+- [README_SETUP.md](./README_SETUP.md) - Setup database & troubleshooting
+
+---
+
+## 🎯 Fitur Utama
+
+### 1. Authentication
+- ✅ Register user baru
+- ✅ Login dengan JWT token
+- ✅ Logout
+- ✅ Protected routes
+
+### 2. Manajemen Buku
+- ✅ Lihat daftar buku (dengan pagination & search)
+- ✅ Tambah buku baru (dengan cover URL)
+- ✅ Edit informasi buku
+- ✅ Detail buku
+- ✅ Filter berdasarkan genre & kondisi
+- ✅ Validasi tahun terbit (maksimal 2025)
+- ✅ Validasi harga & stok (tidak boleh negatif)
+
+### 3. Manajemen Genre
+- ✅ Lihat daftar genre
+- ✅ Tambah genre baru
+- ✅ Edit genre
+- ✅ Hapus genre (jika tidak ada buku terkait)
+
+### 4. Transaksi
+- ✅ Checkout buku
+- ✅ Riwayat transaksi user
+- ✅ Detail transaksi dengan item
+
+---
+
+## 🛠️ Tech Stack
+
+### Frontend
+- **React 19.2.0** - UI Library
+- **TypeScript 5.9.3** - Type Safety
+- **Vite 7.2.2** - Build Tool & Dev Server
+- **TailwindCSS 4.1.17** - Styling
+- **React Router 7.1.1** - Navigation
+- **Axios** - HTTP Client
+
+### Backend
+- **Express.js 4.18.2** - Web Framework
+- **Prisma 6.17.1** - ORM
+- **PostgreSQL (Neon)** - Database
+- **JWT** - Authentication
+- **TypeScript 5.9.3**
+
+---
+
+## 📁 Struktur Project
+
+```
+pweb-reactjs-p24-2025/
+├── pweb-express-p24-2025/          # Backend
+│   ├── src/
+│   │   ├── modules/                # Controllers & Routes
+│   │   ├── middleware/             # Auth, Validation
+│   │   └── index.ts
+│   ├── prisma/
+│   │   └── schema.prisma           # Database Schema
+│   └── .env                        # Database URL, JWT Secret
+│
+├── src/                            # Frontend
+│   ├── pages/                      # Page Components
+│   ├── components/                 # Reusable Components
+│   ├── services/                   # API Services
+│   ├── types/                      # TypeScript Types
+│   └── context/                    # React Context
+│
+└── README.md                       # File ini
+```
+
+---
+
+## 🔧 Troubleshooting
+
+### Data tidak muncul di frontend?
+✅ Pastikan backend berjalan di terminal terpisah
+
+### Error "Cannot find module '@prisma/client'"?
+```bash
+cd pweb-express-p24-2025
+npx prisma generate
+```
+
+### Port sudah digunakan?
+- Tutup aplikasi lain yang menggunakan port 8080/5173
+- Atau ubah port di config
+
+---
+
+## 👨‍💻 Developer
+
+- **Author:** Fatihul Qolbi
+- **Email:** fatihulqolbi02@gmail.com
+- **Repository:** pweb-reactjs-p24-2025
+
+---
+
+## 📝 License
+
+MIT License - Gunakan dengan bijak untuk pembelajaran!
+
+---
+
+## 🎓 Catatan Pembelajaran
+
+Proyek ini dibuat sebagai bagian dari pembelajaran:
+- Full-stack development
+- TypeScript best practices
+- REST API design
+- Database modeling dengan Prisma
+- React component architecture
+- State management
+- Form validation
+- Protected routing
+
+---
+
+**Selamat Belajar & Happy Coding!** 🚀📚
 import reactDom from 'eslint-plugin-react-dom'
 
 export default defineConfig([

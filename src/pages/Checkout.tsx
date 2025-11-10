@@ -70,14 +70,19 @@ export default function Checkout() {
     const enriched = items
       .map((item) => {
         const book = books.find((b) => String(b.id) === item.bookId);
-        const isInStock = book ? item.quantity <= book.stock : true;
+        const bookStock = book?.stock_quantity ?? book?.stock ?? 0;
+        const isInStock = book ? item.quantity <= bookStock : true;
         return { ...item, book, isInStock };
       })
       .filter((item) => item.book && item.quantity > 0);
 
     const totalAmount = enriched.reduce((acc, item) => acc + item.quantity, 0);
     const totalPrice = enriched.reduce(
-      (acc, item) => acc + item.quantity * (item.book?.price ?? 0),
+      (acc, item) => {
+        const price = Number(item.book?.price) || 0;
+        const quantity = Number(item.quantity) || 0;
+        return acc + (quantity * price);
+      },
       0
     );
     const hasStockError = enriched.some(item => !item.isInStock);
@@ -98,7 +103,7 @@ export default function Checkout() {
     const payloadItems = items
       .filter((item) => item.bookId && item.quantity > 0)
       .map((item) => ({
-        bookId: Number(item.bookId),
+        book_id: item.bookId,
         quantity: Number(item.quantity),
       }));
 
@@ -109,10 +114,10 @@ export default function Checkout() {
 
     setSubmitting(true);
     try {
-      const transaction = await createTransaction({ items: payloadItems });
-      navigate(`/transactions/${transaction.id}`);
-    } catch (err) {
-      setFormError("Gagal membuat transaksi. Coba lagi.");
+      const response = await createTransaction({ items: payloadItems });
+      navigate(`/transactions/${response.data.id}`);
+    } catch (err: any) {
+      setFormError(err?.response?.data?.message || "Gagal membuat transaksi. Coba lagi.");
     } finally {
       setSubmitting(false);
     }
@@ -241,18 +246,47 @@ export default function Checkout() {
         <div className="bg-white rounded-xl shadow-md border border-slate-200 p-5">
           <h2 className="text-lg font-semibold text-slate-900 mb-4">Ringkasan Pembelian</h2>
           
-          <dl className="space-y-2 text-sm text-slate-600">
-            <div className="flex items-center justify-between">
-              <dt>Total item</dt>
-              <dd className="font-semibold text-slate-900">{summary.totalAmount} buku</dd>
-            </div>
-            <div className="flex items-center justify-between">
-              <dt>Total harga</dt>
-              <dd className="text-xl font-bold text-indigo-600">
-                {formatCurrency(summary.totalPrice)}
-              </dd>
-            </div>
-          </dl>
+          {/* Item Pembelian */}
+          <div className="mb-4 space-y-3">
+            <h3 className="text-sm font-semibold text-slate-700">Item Pembelian</h3>
+            {summary.enriched.length === 0 ? (
+              <p className="text-sm text-slate-500 italic">Belum ada buku dipilih</p>
+            ) : (
+              <div className="space-y-2">
+                {summary.enriched.map((item) => {
+                  const writer = item.book?.writer || (item.book as any)?.author || 'Penulis tidak tersedia';
+                  const price = item.book?.price || 0;
+                  const subtotal = item.quantity * price;
+                  
+                  return (
+                    <div key={item.id} className="text-sm border-b border-slate-100 pb-2">
+                      <div className="font-semibold text-slate-900">{item.book?.title}</div>
+                      <div className="text-slate-600 text-xs">{writer}</div>
+                      <div className="flex justify-between items-center mt-1">
+                        <span className="text-slate-500">Qty: {item.quantity}</span>
+                        <span className="font-semibold text-slate-900">{formatCurrency(subtotal)}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          <div className="border-t border-slate-200 pt-4">
+            <dl className="space-y-2 text-sm text-slate-600">
+              <div className="flex items-center justify-between">
+                <dt>Total item</dt>
+                <dd className="font-semibold text-slate-900">{summary.totalAmount} buku</dd>
+              </div>
+              <div className="flex items-center justify-between">
+                <dt>Total harga</dt>
+                <dd className="text-xl font-bold text-indigo-600">
+                  {formatCurrency(summary.totalPrice)}
+                </dd>
+              </div>
+            </dl>
+          </div>
 
           {/* ERROR MESSAGE */}
           {formError && (

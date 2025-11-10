@@ -3,10 +3,11 @@ import type {
   CreateTransactionPayload,
   Transaction,
   TransactionListResponse,
+  TransactionDetailResponse,
 } from "../types/transaction";
 
 export const getTransactions = async (
-  params: Record<string, unknown>,
+  params?: Record<string, unknown>,
 ): Promise<TransactionListResponse> => {
   const { data } = await API.get<TransactionListResponse>("/transactions", {
     params,
@@ -15,15 +16,15 @@ export const getTransactions = async (
 };
 
 export const getTransactionById = async (
-  id: string | number,
+  id: string,
 ): Promise<Transaction> => {
-  const { data } = await API.get<Transaction>(`/transactions/${id}`);
-  return data;
+  const { data } = await API.get<TransactionDetailResponse>(`/transactions/${id}`);
+  return data.data;
 };
 
 export const createTransaction = async (
   payload: CreateTransactionPayload,
-): Promise<Transaction> => {
-  const { data } = await API.post<Transaction>("/transactions", payload);
+): Promise<any> => {
+  const { data } = await API.post<any>("/transactions", payload);
   return data;
 };

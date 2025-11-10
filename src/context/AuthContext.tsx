@@ -11,14 +11,14 @@ import {
   register as registerRequest,
   getProfile,
 } from "../services/authService";
-import type { AuthResponse, LoginPayload, RegisterPayload, User } from "../types/auth";
+import type { AuthResponse, LoginPayload, RegisterPayload, User, UserResponse } from "../types/auth";
 
 interface AuthContextValue {
   user: User | null;
   token: string | null;
   isInitializing: boolean;
   login: (payload: LoginPayload) => Promise<AuthResponse>;
-  register: (payload: RegisterPayload) => Promise<AuthResponse>;
+  register: (payload: RegisterPayload) => Promise<UserResponse>;
   logout: () => void;
 }
 
@@ -53,20 +53,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [token]);
 
   const persistAuth = (auth: AuthResponse) => {
-    localStorage.setItem("token", auth.token);
-    setToken(auth.token);
-    setUser(auth.user);
+    localStorage.setItem("token", auth.data.token);
+    setToken(auth.data.token);
     return auth;
   };
 
   const handleLogin = async (payload: LoginPayload) => {
     const auth = await loginRequest(payload);
-    return persistAuth(auth);
+    const persistedAuth = persistAuth(auth);
+    // Fetch user profile after login
+    try {
+      const profile = await getProfile();
+      setUser(profile);
+    } catch (error) {
+      console.error("Failed to fetch profile:", error);
+    }
+    return persistedAuth;
   };
 
   const handleRegister = async (payload: RegisterPayload) => {
-    const auth = await registerRequest(payload);
-    return persistAuth(auth);
+    const response = await registerRequest(payload);
+    setUser(response.data);
+    return response;
   };
 
   const handleLogout = () => {

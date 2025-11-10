@@ -3,21 +3,24 @@ import type { PaginationMeta } from "./common";
 export type BookCondition = "NEW" | "LIKE_NEW" | "GOOD" | "FAIR";
 
 export interface Genre {
-  id: number;
+  id: string;
   name: string;
+  description?: string;
 }
 
 export interface Book {
-  id: number;
+  id: string;
   title: string;
   writer: string;
   publisher?: string;
   price: number;
   stock: number;
-  genre?: Genre;
-  genreId?: number;
+  stock_quantity?: number;
+  genre?: string | Genre;
+  genreId?: string;
   condition?: BookCondition;
   publicationYear?: number;
+  publication_year?: number;
   publishDate?: string;
   description?: string;
   isbn?: string;
@@ -27,28 +30,37 @@ export interface Book {
 }
 
 export interface BookListResponse {
+  success: boolean;
+  message?: string;
   data: Book[];
   meta: PaginationMeta;
+}
+
+export interface BookDetailResponse {
+  success: boolean;
+  message?: string;
+  data: Book;
 }
 
 export interface BookFilters {
   search?: string;
   condition?: BookCondition | "ALL";
-  genreId?: number;
+  genreId?: string;
   sortBy?: "title" | "publishDate";
   sortOrder?: "asc" | "desc";
+  orderByTitle?: "asc" | "desc";
   page?: number;
   limit?: number;
 }
 
 export interface CreateBookPayload {
   title: string;
-  writer: string;
-  publisher: string;
+  author: string;
+  publisher?: string;
   price: number;
   stock: number;
-  genreId: number;
-  condition: BookCondition;
+  genre_id: string;
+  condition?: BookCondition;
   publicationYear?: number;
   publishDate?: string;
   description?: string;

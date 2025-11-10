@@ -38,7 +38,7 @@ export default function BooksList() {
   const [genreFilter, setGenreFilter] = useState<string>("ALL");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     const loadGenres = async () => {
@@ -59,7 +59,7 @@ export default function BooksList() {
       try {
         const response = await getBooks({
           ...filters,
-          genreId: genreFilter === "ALL" ? undefined : Number(genreFilter),
+          genreId: genreFilter === "ALL" ? undefined : genreFilter,
           condition: filters.condition === "ALL" ? undefined : filters.condition,
         });
         setBooks(response.data);
@@ -86,7 +86,7 @@ export default function BooksList() {
     setFilters((prev) => ({ ...prev }));
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (!window.confirm("Hapus buku ini? Tindakan tidak dapat dibatalkan.")) {
       return;
     }
