@@ -60,10 +60,20 @@ export default function Transactions() {
     <section className="space-y-6">
       {/* HERO HEADER — mirip homepage */}
       <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
-        <h1 className="text-3xl font-bold text-slate-900">Riwayat Transaksi</h1>
-        <p className="text-sm text-slate-600 mt-2">
-          Pantau semua pembelian buku IT Anda dalam satu tempat terintegrasi.
-        </p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900">Riwayat Transaksi</h1>
+            <p className="text-sm text-slate-600 mt-2">
+              Pantau semua pembelian buku IT Anda dalam satu tempat terintegrasi.
+            </p>
+          </div>
+          <button
+            onClick={() => updateFilters({ search: "", sortBy: "id", sortOrder: "desc", page: 1 })}
+            className="inline-flex items-center rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-900"
+          >
+            Reset Filter
+          </button>
+        </div>
         <div className="flex gap-3 mt-4">
           <Link
             to="/books"
@@ -86,7 +96,7 @@ export default function Transactions() {
           Cari berdasarkan ID transaksi
           <input
             type="search"
-            placeholder="Misal: TRX-1023"
+            placeholder="Misal: cmht2wuwp0001z8bk0bload3p"
             value={filters.search}
             onChange={(event) => updateFilters({ search: event.target.value })}
             className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-900 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
@@ -112,7 +122,7 @@ export default function Transactions() {
           Urutan data
           <select
             value={filters.sortOrder}
-            onChange={(event) => updateFilters({ sortOrder: event.target.value })}
+            onChange={(event) => updateFilters({ sortOrder: event.target.value as "asc" | "desc" })}
             className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-900 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
           >
             <option value="desc">Terbaru</option>
